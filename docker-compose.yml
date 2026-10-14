@@ -1,0 +1,21 @@
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: digital-wallet-db
+    environment:
+      POSTGRES_DB: digital_wallet
+      POSTGRES_USER: wallet_user
+      POSTGRES_PASSWORD: local_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - wallet_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallet_user -d digital_wallet"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  wallet_postgres_data:
