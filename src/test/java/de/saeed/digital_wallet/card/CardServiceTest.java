@@ -10,8 +10,6 @@ import static org.mockito.Mockito.when;
 
 public class CardServiceTest {
 
-    UUID testUuid = UUID.randomUUID();
-
     @Test
     void shouldReturnCardWhenCardExists() {
         // Arrange
@@ -34,17 +32,25 @@ public class CardServiceTest {
 
     @Test
     void shouldThrowExceptionWhenCardDoesNotExist() {
-        CardRepository repository =
-                mock(CardRepository.class);
+        // Arrange
+        CardRepository repository = mock(CardRepository.class);
+        UUID id = UUID.randomUUID();
 
-        when(repository.findById(testUuid))
+        when(repository.findById(id))
                 .thenReturn(Optional.empty());
 
-        CardService service =
-                new CardService(repository);
+        CardService service = new CardService(repository);
 
-        assertThrows(
+        // Act
+        CardNotFoundException exception = assertThrows(
                 CardNotFoundException.class,
-                () -> service.getCardById(testUuid));
+                () -> service.getCardById(id)
+        );
+
+        // Assert
+        assertEquals(
+                "Card not found with id: " + id,
+                exception.getMessage()
+        );
     }
 }
