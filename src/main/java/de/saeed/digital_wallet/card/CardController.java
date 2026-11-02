@@ -3,7 +3,7 @@ package de.saeed.digital_wallet.card;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import jakarta.validation.Valid;
@@ -27,8 +27,9 @@ public class CardController {
     }
 
     @GetMapping("/{id}")
-    public Card getCardById(@PathVariable UUID id) {
-        return cardService.getCardById(id);
+    public CardResponseDto getCardById(@PathVariable UUID id) {
+        Card card = cardService.getCardById(id);
+        return CardResponseDto.from(card);
     }
 
     @PostMapping
@@ -51,5 +52,17 @@ public class CardController {
             String lastFour
 
     ) {
+    }
+
+    public record CardResponseDto(
+            UUID id,
+            String displayName,
+            String lastFour,
+            CardStatus status,
+            Instant createdAt)
+    {
+        public static CardResponseDto from(Card card) {
+            return new CardResponseDto(card.getId(), card.getDisplayName(), card.getLastFour(), card.getStatus(), card.getCreatedAt());
+        }
     }
 }
