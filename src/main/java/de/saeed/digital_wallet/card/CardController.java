@@ -4,6 +4,7 @@ package de.saeed.digital_wallet.card;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import jakarta.validation.Valid;
@@ -22,8 +23,10 @@ public class CardController {
     }
 
     @GetMapping
-    public List<Card> getAllCards() {
-        return cardService.getAllCards();
+    public List<CardResponseDto> getAllCards() {
+        List<Card> cards = cardService.getAllCards();
+        List<CardResponseDto> result = cards.stream().map(CardResponseDto::from).toList();
+        return result;
     }
 
     @GetMapping("/{id}")
