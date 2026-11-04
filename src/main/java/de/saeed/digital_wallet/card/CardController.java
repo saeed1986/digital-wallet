@@ -37,11 +37,10 @@ public class CardController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Card createCard(@Valid @RequestBody CreateCardRequest request) {
-        return cardService.createCard(
-                request.displayName(),
-                request.lastFour()
-        );
+    public CardResponseDto createCard(@Valid @RequestBody CreateCardRequest request) {
+        Card card = cardService.createCard( request.displayName(),
+                request.lastFour());
+        return CardResponseDto.from(card);
     }
 
     public record CreateCardRequest(
