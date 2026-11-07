@@ -1,12 +1,12 @@
-
 package de.saeed.digital_wallet.card;
 
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class CardService {
 
     private final CardRepository cardRepository;
@@ -28,5 +28,20 @@ public class CardService {
     public Card createCard(String displayName, String lastFour) {
         Card card = new Card(displayName, lastFour);
         return cardRepository.save(card);
+    }
+
+    public void deleteCard(UUID id) {
+        if (cardRepository.existsById(id)) {
+            cardRepository.deleteById(id);
+        } else {
+            throw new CardNotFoundException(id);
+        }
+    }
+
+    public Card updateCard(UUID id, String displayName) {
+        Card card = getCardById(id);
+        card.updateDisplayName(displayName);
+        cardRepository.save(card);
+        return card;
     }
 }
