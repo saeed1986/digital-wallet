@@ -33,14 +33,15 @@ Dieses Projekt ist mein Weg, mich mit diesen Fragen auseinanderzusetzen und mein
 
 Bereits umgesetzt:
 
-- Karten anlegen, auflisten und einzeln abrufen (REST-API)
-- Eingabevalidierung (Name Pflicht, genau vier Ziffern)
+- Karten anlegen, auflisten, einzeln abrufen, umbenennen und löschen (REST-API)
+- Eigene Antwort-DTOs: Die API gibt keine Datenbank-Entitäten direkt zurück
+- Eingabevalidierung (Name Pflicht, höchstens 100 Zeichen, genau vier Ziffern)
 - Einheitliches Fehlerformat (`400` bei ungültigen Eingaben, `404` bei unbekannter Karte)
 - Datenbankschema mit Flyway-Migrationen
 - Unit-Tests für die Service-Schicht
 - Lokale Datenbank per Docker Compose
 
-Als Nächstes geplant: Antwort-DTOs, Karten ändern/sperren/löschen, Benutzer und Authentifizierung, Transaktionen.
+Als Nächstes geplant: Karten sperren/entsperren, weitere Fehlerbehandlung, mehr Tests, Benutzer und Authentifizierung, Transaktionen.
 
 ## Technologie-Stack
 
@@ -118,6 +119,10 @@ Diese Werte gelten nur für die lokale Entwicklung.
 | `POST` | `/api/cards` | Karte anlegen | `201 Created` |
 | `GET` | `/api/cards` | Alle Karten auflisten | `200 OK` |
 | `GET` | `/api/cards/{id}` | Eine Karte abrufen | `200 OK` |
+| `PATCH` | `/api/cards/{id}` | Karte umbenennen | `200 OK` |
+| `DELETE` | `/api/cards/{id}` | Karte löschen | `204 No Content` |
+
+Bei unbekannter Karten-ID antworten `GET`, `PATCH` und `DELETE` mit `404 Not Found`.
 
 **Beispiel: Karte anlegen**
 
@@ -138,6 +143,24 @@ Antwort:
   "createdAt": "2026-10-29T21:30:00Z"
 }
 ```
+
+**Beispiel: Karte umbenennen**
+
+```bash
+curl -X PATCH http://localhost:8080/api/cards/3f0c0f4e-8c6b-4a6e-9a43-2d1f0b7d9c11 \
+  -H "Content-Type: application/json" \
+  -d '{"displayName": "Urlaubskarte"}'
+```
+
+Antwort: `200 OK` mit der aktualisierten Karte (gleiches Format wie oben). Nur der Name ist änderbar.
+
+**Beispiel: Karte löschen**
+
+```bash
+curl -X DELETE http://localhost:8080/api/cards/3f0c0f4e-8c6b-4a6e-9a43-2d1f0b7d9c11
+```
+
+Antwort: `204 No Content` ohne Body.
 
 **Beispiel: Fehlerantwort (`400 Bad Request`)**
 
@@ -178,6 +201,8 @@ src/main/resources/
 - **Schema per Flyway, Prüfung per Hibernate.** Das Datenbankschema wird ausschließlich über Migrationen verändert (`ddl-auto=validate`).
 - **Konfiguration über Umgebungsvariablen** mit lokalen Standardwerten, damit keine Zugangsdaten im Repository festgeschrieben werden müssen.
 - **Eigene ID-Vergabe per UUID**, damit IDs nicht erratbar oder fortlaufend sind.
+- **Eigene Antwort-DTOs** statt Entities: Die API ist ein Vertrag mit Clients und soll unabhängig vom Tabellenaufbau bleiben.
+- **`PATCH` statt `PUT` zum Umbenennen:** Es wird nur ein Feld geändert, nicht die ganze Karte ersetzt.
 
 ---
 
