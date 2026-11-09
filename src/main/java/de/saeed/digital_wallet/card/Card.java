@@ -71,5 +71,9 @@ public class Card {
     public void activate() {
         this.status = CardStatus.ACTIVE;
     }
+
+    public void updateDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 }
 
